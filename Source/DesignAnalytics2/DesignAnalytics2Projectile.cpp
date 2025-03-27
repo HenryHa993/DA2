@@ -23,10 +23,10 @@ ADesignAnalytics2Projectile::ADesignAnalytics2Projectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
+	ProjectileMovement->InitialSpeed = 3500.f;
+	ProjectileMovement->MaxSpeed = 3500.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->bShouldBounce = false;
 	ProjectileMovement->ProjectileGravityScale = 0;
 
 	// Die after 3 seconds by default
@@ -42,8 +42,13 @@ void ADesignAnalytics2Projectile::OnHit(UPrimitiveComponent* HitComp, AActor* Ot
 
 		Destroy();
 	}*/
+	
 	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
 	{
+		if(OtherComp->IsSimulatingPhysics())
+		{
+			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+		}
 		AEnemyPawn* enemyPawn = Cast<AEnemyPawn>(OtherActor);
 		if(enemyPawn != nullptr)
 		{

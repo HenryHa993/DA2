@@ -42,7 +42,7 @@ void UHealthComponent::Damage(float damage)
 		Death();
 		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Enemy took %f damage."), damage);
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy took %f damage."), damage);
 	OnHealthChangedDelegate.Broadcast(CurrentHealth);
 	OnDamagedDelegate.Broadcast(damage);
 }
@@ -55,7 +55,7 @@ void UHealthComponent::SetHealth(float health)
 
 void UHealthComponent::Death()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Enemy died."));
+	//UE_LOG(LogTemp, Warning, TEXT("Enemy died."));
 	OnDeathDelegate.Broadcast();
 }
 

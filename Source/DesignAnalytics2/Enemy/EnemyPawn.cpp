@@ -3,9 +3,13 @@
 
 #include "EnemyPawn.h"
 
+#include "EnemyAIController.h"
+#include "EnemyProjectile.h"
 #include "Components/BillboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Kismet/BlueprintTypeConversions.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -42,14 +46,16 @@ void AEnemyPawn::BeginPlay()
 	HealthComponent->OnHealthChangedDelegate.AddUniqueDynamic(this, &AEnemyPawn::AEnemyPawn::OnHealthChanged);
 	HealthComponent->OnDamagedDelegate.AddUniqueDynamic(this, &AEnemyPawn::AEnemyPawn::OnDamaged);
 
-	int randomNum = FMath::RandRange(1,3);
-	HealthComponent->CurrentHealth = randomNum;
-	HealthComponent->MaxHealth = randomNum;
+	EnemyType = FMath::RandRange(1,3);
+	HealthComponent->CurrentHealth = EnemyType;
+	HealthComponent->MaxHealth = EnemyType;
 
-	CurrentScale = HealthComponent->MaxHealth * HealthScaleRatio;
-	StaticMeshComponent->SetWorldScale3D({0.01f, CurrentScale, CurrentScale});
+	// Set to zero so scales to size in spawning
+	CurrentScale = 0;
+	StaticMeshComponent->SetWorldScale3D({0.01f, 0, 0});
 
-	StaticMeshComponent->SetMaterial(0, EnemyMaterials[randomNum-1]);
+	StaticMeshComponent->SetMaterial(0, EnemyMaterials[EnemyType-1]);
+	Projectile = Projectiles[EnemyType-1];
 
 	//CapsuleComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AEnemyPawn::OnOverlapBegin);
 
@@ -70,6 +76,20 @@ void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AEnemyPawn::Fire()
+{
+	//Set Spawn Collision Handling Override
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+	FVector playerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+	FRotator spawnRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), playerLocation);
+	FVector spawnLocation = GetActorLocation() + spawnRotation.Vector() * 100.0f;
+	
+	// Spawn the projectile at the muzzle
+	GetWorld()->SpawnActor<AEnemyProjectile>(Projectile->GetDefaultObject()->GetClass(), spawnLocation, spawnRotation, ActorSpawnParams);
+}
+
 /*void AEnemyPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -87,6 +107,13 @@ void AEnemyPawn::DeathAnimation()
 		{
 			Destroy();
 		}
+		AEnemyAIController* controller = Cast<AEnemyAIController>(GetController());
+		if(controller != nullptr)
+		{
+			controller->GetBrainComponent()->StopLogic(TEXT("Death"));
+			controller->UnPossess();
+		}
+
 		CurrentScale = FMath::Lerp(CurrentScale, 0, GetWorld()->DeltaTimeSeconds * ScaleAnimationSpeed);
 		StaticMeshComponent->SetWorldScale3D({0.01f,CurrentScale,CurrentScale});
 	}
@@ -112,7 +139,7 @@ void AEnemyPawn::ScaleAnimation()
 {
 	float currentHealth = HealthComponent->CurrentHealth;
 	float targetScale = currentHealth * HealthScaleRatio;
-	if(!(CurrentScale - targetScale <= 0.1f))
+	if(!(CurrentScale - targetScale <= 0.1f) || !(CurrentScale - targetScale >= -0.1f))
 	{
 		CurrentScale = FMath::Lerp(CurrentScale, targetScale, GetWorld()->DeltaTimeSeconds * ScaleAnimationSpeed);
 		StaticMeshComponent->SetWorldScale3D({0.01f,CurrentScale,CurrentScale});

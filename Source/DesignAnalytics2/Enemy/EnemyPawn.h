@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyProjectile.h"
 #include "DesignAnalytics2/Components/HealthComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/Pawn.h"
@@ -32,6 +33,9 @@ public:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 						bool bFromSweep, const FHitResult& SweepResult);*/
+
+	UFUNCTION(BlueprintCallable)
+	void Fire();
 
 	UFUNCTION(BlueprintCallable)
 	void OnDeath();
@@ -76,4 +80,12 @@ public:
 	TArray<UMaterialInterface*> EnemyMaterials;
 
 	bool Dead = false;;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AEnemyProjectile> Projectile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSubclassOf<AEnemyProjectile>> Projectiles;
+
+	int EnemyType;
 };

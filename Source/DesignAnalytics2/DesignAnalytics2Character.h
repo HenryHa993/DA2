@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "DesignAnalytics2Character.generated.h"
@@ -44,6 +45,11 @@ class ADesignAnalytics2Character : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
+
+public:
+	UPROPERTY(EditAnywhere)
+	UHealthComponent* HealthComponent = nullptr;
+
 	
 public:
 	ADesignAnalytics2Character();
@@ -67,5 +73,7 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	UFUNCTION()
+	void OnDeath();
 };
 

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "DesignAnalytics2/DesignAnalytics2Projectile.h"
 #include "EnemyProjectile.generated.h"
 
 UCLASS()
-class DESIGNANALYTICS2_API AEnemyProjectile : public AActor
+class DESIGNANALYTICS2_API AEnemyProjectile : public ADesignAnalytics2Projectile
 {
 	GENERATED_BODY()
 
@@ -15,11 +15,15 @@ public:
 	// Sets default values for this actor's properties
 	AEnemyProjectile();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere)
+	float Damage = 1;
+
+	UPROPERTY(EditAnywhere)
+	float Speed = 750;
+
+	UPROPERTY(EditAnywhere)
+	float Lifetime = 2.0f;
 };

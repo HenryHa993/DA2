@@ -35,6 +35,10 @@ ADesignAnalytics2Character::ADesignAnalytics2Character()
 	Mesh1P->CastShadow = false;
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	HealthComponent->MaxHealth = 10.0f;
+	HealthComponent->CurrentHealth = 10.0f;
+	HealthComponent->OnDeathDelegate.AddUniqueDynamic(this, &ADesignAnalytics2Character::OnDeath);
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -72,6 +76,11 @@ void ADesignAnalytics2Character::SetupPlayerInputComponent(UInputComponent* Play
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+}
+
+void ADesignAnalytics2Character::OnDeath()
+{
+	
 }
 
 

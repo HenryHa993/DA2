@@ -3,24 +3,38 @@
 
 #include "EnemyProjectile.h"
 
+#include "DesignAnalytics2/DesignAnalytics2Character.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 
 // Sets default values
-AEnemyProjectile::AEnemyProjectile()
+AEnemyProjectile::AEnemyProjectile() : ADesignAnalytics2Projectile()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// Use a ProjectileMovementComponent to govern this projectile's movement
+	ProjectileMovement->InitialSpeed = Speed;
+	ProjectileMovement->MaxSpeed = Speed;
+	ProjectileMovement->bShouldBounce = false;
+
+	// Die after 2 seconds by default
+	InitialLifeSpan = Lifetime;
 }
 
-// Called when the game starts or when spawned
-void AEnemyProjectile::BeginPlay()
+void AEnemyProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
 {
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AEnemyProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		if(OtherComp->IsSimulatingPhysics())
+		{
+			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+		}
+		
+		ADesignAnalytics2Character* player = Cast<ADesignAnalytics2Character>(OtherActor);
+		if(player != nullptr)
+		{
+			player->HealthComponent->Damage(1);
+		}
+		Destroy();
+	}
 }
 
