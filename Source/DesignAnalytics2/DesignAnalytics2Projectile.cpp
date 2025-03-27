@@ -3,6 +3,7 @@
 #include "DesignAnalytics2Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Enemy/EnemyPawn.h"
 
 ADesignAnalytics2Projectile::ADesignAnalytics2Projectile() 
 {
@@ -26,6 +27,7 @@ ADesignAnalytics2Projectile::ADesignAnalytics2Projectile()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->ProjectileGravityScale = 0;
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
@@ -34,10 +36,19 @@ ADesignAnalytics2Projectile::ADesignAnalytics2Projectile()
 void ADesignAnalytics2Projectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
+	/*if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
 	{
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 		Destroy();
+	}*/
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr))
+	{
+		AEnemyPawn* enemyPawn = Cast<AEnemyPawn>(OtherActor);
+		if(enemyPawn != nullptr)
+		{
+			enemyPawn->HealthComponent->Damage(1);
+			Destroy();
+		}
 	}
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DesignAnalytics2/Components/HealthComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/Pawn.h"
 #include "EnemyPawn.generated.h"
@@ -23,17 +24,56 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/*UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+						UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+						bool bFromSweep, const FHitResult& SweepResult);*/
+
+	UFUNCTION(BlueprintCallable)
+	void OnDeath();
+
+	UFUNCTION(BlueprintCallable)
+	void OnHealthChanged(float newHealth);
+
+	UFUNCTION(BlueprintCallable)
+	void OnDamaged(float damage);
+
+	// Animations
+	UFUNCTION(BlueprintCallable)
+	void ScaleAnimation();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathAnimation();
+
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* SceneComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMeshComponent;
 
-	UPROPERTY(EditAnywhere)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCapsuleComponent* CapsuleComponent;*/
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UFloatingPawnMovement* FloatingPawnMovement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HealthScaleRatio = 0.3f;
+	float CurrentScale;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	float ScaleAnimationSpeed = 10.0f;;
+
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> EnemyMaterials;
+
+	bool Dead = false;;
 };

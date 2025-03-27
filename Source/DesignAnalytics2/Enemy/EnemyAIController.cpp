@@ -18,6 +18,8 @@ void AEnemyAIController::BeginPlay()
 		RunBehaviorTree(BehaviourTree);
 		BehaviourTreeComponent->StartTree(*BehaviourTree);
 	}
+
+	SetFocus(GetWorld()->GetFirstPlayerController()->GetPawn());
 	
 	Super::BeginPlay();
 }
