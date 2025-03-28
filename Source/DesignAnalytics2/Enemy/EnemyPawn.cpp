@@ -7,6 +7,7 @@
 #include "EnemyProjectile.h"
 #include "Components/BillboardComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DesignAnalytics2/DesignAnalytics2GameState.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/BlueprintTypeConversions.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -57,7 +58,8 @@ void AEnemyPawn::BeginPlay()
 	StaticMeshComponent->SetMaterial(0, EnemyMaterials[EnemyType-1]);
 	Projectile = Projectiles[EnemyType-1];
 
-	//CapsuleComponent->OnComponentBeginOverlap.AddUniqueDynamic(this, &AEnemyPawn::OnOverlapBegin);
+	GameState = Cast<ADesignAnalytics2GameState>(GetWorld()->GetGameState());
+	GameState->EnemySpawned();
 
 	Super::BeginPlay();
 }
@@ -90,21 +92,18 @@ void AEnemyPawn::Fire()
 	GetWorld()->SpawnActor<AEnemyProjectile>(Projectile->GetDefaultObject()->GetClass(), spawnLocation, spawnRotation, ActorSpawnParams);
 }
 
-/*void AEnemyPawn::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	FVector velocity = -FloatingPawnMovement->Velocity;
-	FloatingPawnMovement->Velocity = velocity;
-	UE_LOG(LogTemp, Warning, TEXT("Overlap."));
-
-}*/
-
 void AEnemyPawn::DeathAnimation()
 {
 	if(Dead)
 	{
 		if(CurrentScale <= 0)
 		{
+			if(FMath::RandRange(1,10) <= 2)
+			{
+				FActorSpawnParameters ActorSpawnParams;
+				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+				GetWorld()->SpawnActor<AActor>(HealthDrop->GetDefaultObject()->GetClass(), GetActorLocation() + FVector(0,0,-200), FRotator::ZeroRotator, ActorSpawnParams);
+			}
 			Destroy();
 		}
 		AEnemyAIController* controller = Cast<AEnemyAIController>(GetController());
@@ -121,7 +120,12 @@ void AEnemyPawn::DeathAnimation()
 
 void AEnemyPawn::OnDeath()
 {
+	if(Dead)
+	{
+		return;
+	}
 	Dead = true;
+	GameState->EnemyKilled(EnemyType);
 }
 
 void AEnemyPawn::OnHealthChanged(float newHealth)

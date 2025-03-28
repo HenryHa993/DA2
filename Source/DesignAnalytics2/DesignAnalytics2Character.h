@@ -47,7 +47,7 @@ class ADesignAnalytics2Character : public ACharacter
 	class UInputAction* LookAction;
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UHealthComponent* HealthComponent = nullptr;
 
 	

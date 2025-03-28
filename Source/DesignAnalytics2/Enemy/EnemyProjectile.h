@@ -22,7 +22,7 @@ public:
 	float Damage = 1;
 
 	UPROPERTY(EditAnywhere)
-	float Speed = 750;
+	float Speed = 900;
 
 	UPROPERTY(EditAnywhere)
 	float Lifetime = 2.0f;

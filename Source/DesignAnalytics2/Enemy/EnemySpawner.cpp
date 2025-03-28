@@ -16,7 +16,8 @@ void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Spawn(10);
+	//Spawn(10);
+	GameState = Cast<ADesignAnalytics2GameState>(GetWorld()->GetGameState());
 }
 
 FVector AEnemySpawner::GetRandomLocationInRange()
@@ -30,6 +31,7 @@ void AEnemySpawner::Spawn(int amount)
 {
 	SpawnCounter = amount;
 	CurrentSpawnCounter = 0;
+	IsSpawning = true;
 	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 	GetWorldTimerManager().SetTimer(
 		SpawnTimerHandle,
@@ -39,6 +41,8 @@ void AEnemySpawner::Spawn(int amount)
 		true,
 		1.0f
 		);
+
+	GameState->NewWave();
 }
 
 void AEnemySpawner::SpawnOnce()
@@ -47,12 +51,18 @@ void AEnemySpawner::SpawnOnce()
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy?"));
 		GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+		IsSpawning = false;
+		// If we fail to spawn the last guy
+		if(GameState->EnemiesLeftThisWave <= 0)
+		{
+			Spawn((GameState->WaveNumber + 1) * 3);
+		}
 		return;
 	}
 	CurrentSpawnCounter++;
 	FVector spawnLocation = GetRandomLocationInRange();
 	GetWorld()->SpawnActor<AEnemyPawn>(Enemy, spawnLocation, FRotator::ZeroRotator);
-	UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy Number %d"), CurrentSpawnCounter);
+	//UE_LOG(LogTemp, Warning, TEXT("Spawning Enemy Number %d"), CurrentSpawnCounter);
 
 }
 

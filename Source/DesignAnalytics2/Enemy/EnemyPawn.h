@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EnemyProjectile.h"
+#include "DesignAnalytics2/DesignAnalytics2GameState.h"
 #include "DesignAnalytics2/Components/HealthComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "GameFramework/Pawn.h"
@@ -87,5 +88,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<AEnemyProjectile>> Projectiles;
 
+	ADesignAnalytics2GameState* GameState;
+
 	int EnemyType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> HealthDrop;
 };

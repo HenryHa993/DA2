@@ -53,7 +53,7 @@ void ADesignAnalytics2Projectile::OnHit(UPrimitiveComponent* HitComp, AActor* Ot
 		if(enemyPawn != nullptr)
 		{
 			enemyPawn->HealthComponent->Damage(1);
-			Destroy();
 		}
+		Destroy();
 	}
 }

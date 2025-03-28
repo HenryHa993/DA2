@@ -48,4 +48,9 @@ public:
 
 	UPROPERTY()
 	FTimerHandle SpawnTimerHandle;
+
+	ADesignAnalytics2GameState* GameState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsSpawning = false;
 };
